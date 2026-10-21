@@ -48,7 +48,8 @@ class Q4Solver:
         n_boundary = 24
         for i in range(n_boundary):
             theta = 2 * np.pi * i / n_boundary
-            pos = np.array([\n                (REGION_RADIUS - 50) * np.cos(theta),
+            pos = np.array([
+                (REGION_RADIUS - 50) * np.cos(theta),
                 (REGION_RADIUS - 50) * np.sin(theta),
             ])
             positions.append(pos)
@@ -61,7 +62,7 @@ class Q4Solver:
         initial_measurements: list,
     ) -> np.ndarray:
         """
-        多角度确认机制：从多个方向检测，排除定向源盲区导致的误误判
+        多角度确认机制：从多个方向检测，排除定向源盲区导致的误判
         """
         if len(initial_measurements) < 2:
             if len(initial_measurements) == 1:
@@ -98,7 +99,7 @@ class Q4Solver:
                     initial_measurements[best_pair[1]]["bearing"]]
 
         polygon = build_location_polygon(obs, bearings, ANGLE_ERROR_DEG, REGION_RADIUS)
-        if polygon is not None and len(polygon) >= 33:
+        if polygon is not None and len(polygon) >= 3:
             return polygon.mean(axis=0)
 
         positions = np.array([m["position"] for m in initial_measurements])
@@ -110,7 +111,7 @@ class Q4Solver:
         """
         measurements = []
         n_points = 20
-n        for i in range(n_points):
+        for i in range(n_points):
             theta = 2 * np.pi * i / n_points
             pos = np.array([
                 (REGION_RADIUS - 100) * np.cos(theta),
@@ -118,13 +119,13 @@ n        for i in range(n_points):
             ])
             self.sim.move_to(pos)
             result = self.sim.measure(channel)
-            if result["measurements"]":
+            if result["measurements"]:
                 for src_id, meas in result["measurements"].items():
                     measurements.append({
                         "position": pos.copy(),
                         "bearing": meas["bearing"],
                         "source_id": src_id,
-                    })}]
+                    })
         return measurements
 
     def solve(self) -> dict:
@@ -140,7 +141,7 @@ n        for i in range(n_points):
         confirmed_channels = set()
         cleared_channels = set()
 
-        for for pos in waypoints:
+        for pos in waypoints:
             self.sim.move_to(pos)
             self.path_log.append(("move", pos.copy()))
 
@@ -168,20 +169,20 @@ n        for i in range(n_points):
                 boundary_meas = self._boundary_sweep(ch)
                 measurements.extend(boundary_meas)
 
-            to if len(measurements) >= 2:
+            if len(measurements) >= 2:
                 estimated_pos = self._multi_angle_confirm(ch, measurements)
 
                 self.sim.move_to(estimated_pos)
                 self.path_log.append(("approach", estimated_pos.copy()))
 
-                result = self.sim.measure()"
+                result = self.sim.measure(ch)
                 if result["measurements"]:
                     for src_id, meas in result["measurements"].items():
                         direction = np.array([
                             np.cos(np.radians(meas["bearing"])),
                             np.sin(np.radians(meas["bearing"]))
                         ])
-                        final_pos = estimated_pos + 30 * direction()"
+                        final_pos = estimated_pos + 30 * direction
                         self.sim.move_to(final_pos)
 
                         clear_result = self.sim.clear()
@@ -224,7 +225,7 @@ if __name__ == "__main__":
 
     result = solve_q4(seed=42)
 
-    print(f"\n总虚时间: {result['total_virtual_time']:.1f} s")
+    print(f"\n总虚拟时间: {result['total_virtual_time']:.1f} s")
     print(f"清除干扰源数: {result['total_cleared']}/{result['total_sources']}")
     print(f"完成率: {result['completion_rate']:.2%}")
     print(f"清除频道数: {result['cleared_channels']}")

@@ -189,11 +189,11 @@ def _spiral_scan_positions(n_rings=5, points_per_ring=8):
 
 ```
 循环：
-1. 移动到估计位置
-2. 测量当前频道
-3. 若有信号，沿示向度方向前进一小步（20-30m）
-4. 重复直到距离源 < 20m
-5. 执行清除
+  1. 移动到估计位置
+  2. 测量当前频道
+  3. 若有信号，沿示向度方向前进一小步（20-30m）
+  4. 重复直到距离源 < 20m
+  5. 执行清除
 ```
 
 **关键**：迭代逼近，不要一次走太远（清除半径仅20m）。
@@ -243,7 +243,7 @@ def _multi_angle_confirm(channel, initial_measurements):
     if polygon is not None and len(polygon) >= 3:
         return polygon.mean(axis=0)
     
-    # 兆底：取所有测量点质心
+    # 兜底：取所有测量点质心
     positions = np.array([m["position"] for m in initial_measurements])
     return positions.mean(axis=0)
 ```
@@ -335,6 +335,7 @@ def _get_angle_error(self, position, source_id):
     seed = raw % (2 ** 32)
     
     rng = np.random.RandomState(seed)
+    error = rng.uniform(-ANGLE_ERROR_DEG, ANGLE_ERROR_DEG)
     
     # 缓存
     self._position_errors.setdefault(pos_key, {})[source_id] = error
@@ -365,7 +366,7 @@ def _can_receive(self, robot_pos, source):
         cos_angle = np.dot(direction, to_robot_norm)
         if cos_angle < -0.01:  # 在背面（>90°）
             return False
-
+    
     return True
 ```
 

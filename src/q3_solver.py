@@ -76,7 +76,8 @@ class Q3Solver:
 
     def _triangulate_source(
         self,
-        measurements: list,\n    ) -> np.ndarray:
+        measurements: list,
+    ) -> np.ndarray:
         """
         利用多个检测点的示向度交会定位干扰源
         """
@@ -88,9 +89,9 @@ class Q3Solver:
 
         for i in range(len(measurements)):
             for j in range(i + 1, len(measurements)):
-                boreing_i = measurements[i]["bearing"]
+                bearing_i = measurements[i]["bearing"]
                 bearing_j = measurements[j]["bearing"]
-                diff = abs(boreing_i - bearing_j)
+                diff = abs(bearing_i - bearing_j)
                 if diff > 180:
                     diff = 360 - diff
                 if abs(diff - 90) < abs(best_angle_diff - 90) or best_pair is None:
@@ -125,7 +126,8 @@ class Q3Solver:
             for src_id, meas in result["measurements"].items():
                 direction = np.array([
                     np.cos(np.radians(meas["bearing"])),
-                    np.sin(np.radians(meas["bearing"]))))
+                    np.sin(np.radians(meas["bearing"]))
+                ])
                 refined_pos = estimated_pos + 50 * direction
                 self.sim.move_to(refined_pos)
                 self.path_log.append(("refine_move", refined_pos.copy()))
@@ -194,7 +196,7 @@ if __name__ == "__main__":
 
     result = solve_q3(seed=42)
 
-    print(f"\n总虚时间: {result['total_virtual_time']:.1f} s")
+    print(f"\n总虚拟时间: {result['total_virtual_time']:.1f} s")
     print(f"清除干扰源数: {result['total_cleared']}/{result['total_sources']}")
     print(f"完成率: {result['completion_rate']:.2%}")
     print(f"发现频道数: {result['discovered_channels']}")
